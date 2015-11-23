@@ -1,0 +1,27 @@
+Sub-atomic particles
+Atoms
+Molecules
+Cells
+Structures
+
+?
+
+Particles -> x/y/type/state
+Atoms -> x/y, particles{}
+Molecules -> x/y, atoms{}
+Cells -> x/y, molecules{}
+Structures -> x/y, cells{}
+(velocity)
+
+?
+
+Each type of thing is handled separately, once something is consumed by a higher level, it disappears from the lower level section.
+This way we can save processing power. It means however that things at a higher level can't combine at a lower level. :/
+
+spacial hash? elements can interact with each other only in the same hash, hashes overlap?
+
+-
+
+Particles spawn randomly within a radius specified by the farthest traveled particle.
+Particles spawn with different types, each has a specific lifetime. (Use a particular generator for randomness of lifetimes.)
+Velocities are random, seeded generator?
