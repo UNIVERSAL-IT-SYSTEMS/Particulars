@@ -1,9 +1,10 @@
---NOTE math.random seed has not been set, this means every run should be the same (except for potential hardware differences)
+local lg = love.graphics
+local lm = love.math
 
 local Universe = require "Universe"
 --local Particle = require "Particle"
 
-local universe = Universe.initialize() --Universe.initialize(10, 300)
+local universe = Universe()
 
 function love.update(dt)
     universe:update(dt)

@@ -1,79 +1,50 @@
+local class = require "lib.middleclass"
 local random = math.random --TODO change out as needed later
 local floor = math.floor
-local pi2 = math.pi * 2
-local sin = math.sin
-local cos = math.cos
-local sqrt = math.sqrt
 local lg = love.graphics
-local sw = lg.getWidth()/2
-local sh = lg.getHeight()/2
-local set = setmetatable
 
-local Particle = {}
+local Particle = class("Particle")
 
-local lifetimeRandomizer = love.math.newRandomGenerator(13) -- seeded instead of random, all types are set
+local lifetimeRandomizer = love.math.newRandomGenerator(13--[[os.time()]])
+local maxLifetime = 10 --NOTE can only used fixed "randomization" as long as maxLifetime is constant ?
+local lifetimes = {}
 
-Particle.static = {}
-Particle.static.maxLifetime = 10 --NOTE can only used fixed "randomization" as long as maxLifetime is constant (because universe is random)
-Particle.static.lifetimes = {}
-Particle.static.maxCount = 10000 --10000
-Particle.static.generated = 0
-Particle.static.count = 0
+function Particle:initialize(radius, expansionRate)
+    --NOTE radius is used as a box, not an actual radius...
+    --TODO FIX THIS IMMEDIATEITGJE
 
-function Particle.initialize(radius, expansionRate)
-    --if Particle.static.count >= Particle.static.maxCount then return nil end -- cancel over-generation of Particles
+    if not (radius > 1) then radius = 1 end -- stop randomization errors
 
-    local self = {}
-    set(self, {__index = Particle})
-
-    -- this is because radius < 1 means that random() can't be used
-    if not (radius > 1) then
-        radius = 1
-        self.x = 0
-        self.y = 0
-    else
-        local r = random(radius)
-        local d = random() * pi2
-        self.x = r * cos(d)
-        self.y = r * sin(d)
-    end
-    self.vx = random(-expansionRate, expansionRate)
+    self.x = random(-radius, radius)
+    self.y = random(-radius, radius)
+    self.vx = random(-expansionRate, expansionRate) --TODO make max velocity change based on radius??
     self.vy = random(-expansionRate, expansionRate)
 
     self.type = floor(random(radius)) -- number of types should increase over time
-    if self.type > #Particle.static.lifetimes then
-        for i = #Particle.static.lifetimes, self.type do
-            Particle.static.lifetimes[i] = lifetimeRandomizer:random(Particle.static.maxLifetime)
+    if self.type > #lifetimes then
+        for i = #lifetimes, self.type do
+            lifetimes[i] = lifetimeRandomizer:random(maxLifetime)
         end
     end
-    self.lifetime = Particle.static.lifetimes[self.type]
+    self.lifetime = lifetimes[self.type]
 
-    Particle.static.generated = Particle.static.generated + 1
-    Particle.static.count = Particle.static.count + 1
-
-    return self
+    --[[ debug
+    for k,v in pairs(lifetimes) do
+        print(k,v)
+    end
+    print(self.lifetime)
+    ]]
 end
 
 function Particle:update(dt)
-    self.lifetime = self.lifetime - dt
-    if self.lifetime <= 0 then
-        Particle.static.count = Particle.static.count - 1
-        return true -- true means we need to be deleted
-    end
-
     self.x = self.x + (self.vx * dt)
     self.y = self.y + (self.vy * dt)
+    --TODO shouldn't this update its life and set self nil here??
 end
 
 function Particle:draw()
-    lg.setColor(255, 255, 255, 200)
-    lg.point(self.x + sw, self.y + sh)
-end
-
-function Particle:distanceTo(particle)
-    local dx = particle.x - self.x
-    local dy = particle.y - self.y
-    return sqrt(dx*dx + dy*dy)
+    lg.point(self.x + lg.getWidth()/2, self.y + lg.getHeight()/2)
+    --lg.circle("fill", self.x + lg.getWidth()/2, self.y + lg.getHeight()/2, 1)
 end
 
 return Particle
