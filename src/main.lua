@@ -1,5 +1,6 @@
 local lg = love.graphics
 local lm = love.math
+--NOTE math.random seed has not been set, this means every run should be the same (except for potential hardware differences)
 
 local Universe = require "Universe"
 --local Particle = require "Particle"
