@@ -1,15 +1,21 @@
-local class = require "lib.middleclass"
 local random = math.random --TODO change out as needed later
 local floor = math.floor
 local lg = love.graphics
+local lt = love.timer
+local sw = lg.getWidth()/2
+local sh = lg.getHeight()/2
+local set = setmetatable
 
 local Particle = require "Particle"
 local Double = require "Double"
 local Element = require "Element"
 
-local Universe = class("Universe")
+local Universe = {}
 
-function Universe:initialize(expansionRate, maxRadius)
+function Universe.initialize(expansionRate, maxRadius)
+    local self = {}
+    set(self, {__index = Universe})
+
     self.expansionRate = expansionRate or 1
     self.maxRadius = maxRadius or 500
     self.particles = {}
@@ -19,6 +25,8 @@ function Universe:initialize(expansionRate, maxRadius)
     self.time = {
         nextGeneration = random()
     }
+
+    return self
 end
 
 function Universe:update(dt)
@@ -30,7 +38,7 @@ function Universe:update(dt)
     if self.time.nextGeneration <= 0 then
         if Particle.static.count < Particle.static.maxCount then
             for i = 1, floor(self.radius) do
-                local particle = Particle(self.radius, self.expansionRate)
+                local particle = Particle.initialize(self.radius, self.expansionRate)
                 self.particles[particle] = particle
             end
         end
@@ -42,7 +50,7 @@ function Universe:update(dt)
             for key2, particle2 in pairs(self.particles) do
                 if (particle:distanceTo(particle2) <= Double.static.threshold) and (particle ~= particle2) then
                     -- make a double!
-                    local double = Double(particle, particle2)
+                    local double = Double.initialize(particle, particle2)
                     self.doubles[double] = double
                     self.particles[key] = nil
                     self.particles[key2] = nil
@@ -73,11 +81,12 @@ function Universe:draw()
     end
 
     lg.setColor(255, 255, 255, 50)
-    lg.circle("line", lg.getWidth()/2, lg.getHeight()/2, self.radius)
+    lg.circle("line", sw, sh, self.radius)
     lg.setColor(255, 255, 255, 255)
-    lg.print("Particles: " .. Particle.static.count .. "/" .. Particle.static.generated, 2, 2)
-    lg.print("Doubles: " .. Double.static.count .. "/" .. Double.static.generated, 2, 14)
-    lg.print("Elements: " .. Element.static.count .. "/" .. Element.static.generated, 2, 26)
+    lg.print("FPS: " .. lt.getFPS(), 2, 2)
+    lg.print("Particles: " .. Particle.static.count .. "/" .. Particle.static.generated, 2, 14)
+    lg.print("Doubles: " .. Double.static.count .. "/" .. Double.static.generated, 2, 26)
+    lg.print("Elements: " .. Element.static.count .. "/" .. Element.static.generated, 2, 38)
 end
 
 return Universe

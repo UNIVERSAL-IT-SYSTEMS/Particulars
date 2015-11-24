@@ -1,21 +1,27 @@
-local class = require "lib.middleclass"
 local atan2 = math.atan2
 local sin = math.sin
 local cos = math.cos
 local pi = math.pi
 local lg = love.graphics
+local sw = lg.getWidth()/2
+local sh = lg.getHeight()/2
+local set = setmetatable
 
 local Element = require "Element"
 
-local Double = class("Double")
+local Double = {}
 
+Double.static = {}
 Double.static.threshold = 0.06
-Double.static.maxCount = 500 --5000
+Double.static.maxCount = 5000 --5000
 Double.static.generated = 0
 Double.static.count = 0
 
-function Double:initialize(p1, p2)
+function Double.initialize(p1, p2)
     --if Double.static.count >= Double.static.maxCount then return nil end -- cancel over-generation
+
+    local self = {}
+    set(self, {__index = Double})
 
     self.x = (p1.x + p2.x) / 2
     self.y = (p1.y + p2.y) / 2
@@ -31,12 +37,14 @@ function Double:initialize(p1, p2)
 
     Double.static.generated = Double.static.generated + 1
     Double.static.count = Double.static.count + 1
+
+    return self
 end
 
 function Double:update(dt)
     -- if energy too high / too low, make an Element
     if (self.energy >= 10) or (self.energy <= -20) then
-        return Element(self)
+        return Element.initialize(self)
     end
 
     self.energy = self.energy - dt/10
@@ -51,11 +59,11 @@ function Double:draw()
 
     local x = self.x + (1 * cos(self.angle))
     local y = self.y + (1 * sin(self.angle))
-    lg.point(x + lg.getWidth()/2, y + lg.getHeight()/2)
+    lg.point(x + sw, y + sh)
 
     local x = self.x + (1 * cos(self.angle + pi))
     local y = self.y + (1 * sin(self.angle + pi))
-    lg.point(x + lg.getWidth()/2, y + lg.getHeight()/2)
+    lg.point(x + sw, y + sh)
 end
 
 return Double

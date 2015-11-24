@@ -1,4 +1,3 @@
-local class = require "lib.middleclass"
 local random = math.random --TODO change out as needed later
 local floor = math.floor
 local pi2 = math.pi * 2
@@ -6,19 +5,26 @@ local sin = math.sin
 local cos = math.cos
 local sqrt = math.sqrt
 local lg = love.graphics
+local sw = lg.getWidth()/2
+local sh = lg.getHeight()/2
+local set = setmetatable
 
-local Particle = class("Particle")
+local Particle = {}
 
 local lifetimeRandomizer = love.math.newRandomGenerator(13) -- seeded instead of random, all types are set
 
+Particle.static = {}
 Particle.static.maxLifetime = 10 --NOTE can only used fixed "randomization" as long as maxLifetime is constant (because universe is random)
 Particle.static.lifetimes = {}
-Particle.static.maxCount = 1000 --10000
+Particle.static.maxCount = 10000 --10000
 Particle.static.generated = 0
 Particle.static.count = 0
 
-function Particle:initialize(radius, expansionRate)
+function Particle.initialize(radius, expansionRate)
     --if Particle.static.count >= Particle.static.maxCount then return nil end -- cancel over-generation of Particles
+
+    local self = {}
+    set(self, {__index = Particle})
 
     -- this is because radius < 1 means that random() can't be used
     if not (radius > 1) then
@@ -44,6 +50,8 @@ function Particle:initialize(radius, expansionRate)
 
     Particle.static.generated = Particle.static.generated + 1
     Particle.static.count = Particle.static.count + 1
+
+    return self
 end
 
 function Particle:update(dt)
@@ -59,7 +67,7 @@ end
 
 function Particle:draw()
     lg.setColor(255, 255, 255, 200)
-    lg.point(self.x + lg.getWidth()/2, self.y + lg.getHeight()/2)
+    lg.point(self.x + sw, self.y + sh)
 end
 
 function Particle:distanceTo(particle)
