@@ -5,7 +5,7 @@ local lm = love.math
 local Universe = require "Universe"
 --local Particle = require "Particle"
 
-local universe = Universe()
+local universe = Universe(10, 300)
 
 function love.update(dt)
     universe:update(dt)
